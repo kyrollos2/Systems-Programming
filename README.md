@@ -1,6 +1,6 @@
 # Systems Programming Class Projects
 
-Welcome to the **Systems Programming Class Projects** repository! This is a collaborative workspace where we (the contributors) work on various assignments, labs, and projects related to our Systems Programming course. Our goal is to showcase our growing expertise in **C programming** and system-level development.
+Welcome to our **Systems Programming Class Projects** repository! This is a collaborative workspace where we (the contributors) work on various assignments, labs, and projects related to our Systems Programming course. Our goal is to showcase our growing expertise in **C programming** and system-level development.
 
 ## Table of Contents
 
