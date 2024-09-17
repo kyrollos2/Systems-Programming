@@ -1,0 +1,2 @@
+This subdirectory is for small little test programs that we wrote to test a concept, or get practice.
+Generally the files in this directory will not be apart of a large project, unless otherwise specified.
