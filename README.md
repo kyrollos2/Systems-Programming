@@ -41,5 +41,8 @@ Stay tuned for more updates as we continue to explore different topics and compl
 To get started with the repository, clone it to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/systems-programming-class.git
+git clone https://github.com/kyrollos2/systems-programming-class.git
 cd systems-programming-class
+
+```
+but the real question is why would you want to use beginner C code from two college students 
