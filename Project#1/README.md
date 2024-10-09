@@ -1,5 +1,7 @@
 CS214 Systems Programming. My little malloc() by Neer Patel and Kyrollos Girgis 
+
 This project implements a simple custom memory allocator (mymalloc) that operates on a fixed-size memory heap. The project also includes memgrind, a test program designed to analyze the performance of the custom allocator under different memory workloads.
+
 Files:
 mymalloc.c: Contains the implementation of the custom memory allocator, including the mymalloc() and myfree() functions, which replicate malloc() and free() from the standard library, but operate on a fixed memory pool.
 memgrind.c: Contains three workloads that test the performance of the memory allocator by simulating different memory usage patterns.
