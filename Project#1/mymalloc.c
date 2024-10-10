@@ -1,20 +1,20 @@
-#include "mymalloc.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include "mymalloc.h"
 
 #define MEMLENGTH 4096
 static union {
     char bytes[MEMLENGTH];
-    double not_used; // Ensure 8-byte alignment
+    double not_used;  // Ensure 8-byte alignment
 } heap;
 
 typedef struct chunk_header {
     size_t size;
     bool is_free;
     struct chunk_header* next;
+    struct chunk_header* prev;  // Added for backward coalescing
 } chunk_header;
 
 static chunk_header* base = NULL;
@@ -35,6 +35,7 @@ void initialize_heap() {
         base->size = MEMLENGTH - sizeof(chunk_header);
         base->is_free = true;
         base->next = NULL;
+        base->prev = NULL;  // Initialize previous pointer
         atexit(leak_detector);
         initialized = true;
     }
@@ -45,17 +46,21 @@ void *mymalloc(size_t size, char *file, int line) {
         initialize_heap();
     }
 
-    size = align8(size); // Align requested size to 8 bytes
+    size = align8(size);
     chunk_header *current = base;
 
     while (current != NULL) {
         if (current->is_free && current->size >= size) {
-            // Check if there's enough space to split the chunk
-            if (current->size >= size + sizeof(chunk_header) + 8) {
+            // Enhanced Splitting Logic: Avoid excessive fragmentation
+            if (current->size >= size + sizeof(chunk_header) + align8(1)) {
                 chunk_header *new_chunk = (chunk_header*)((char*)current + sizeof(chunk_header) + size);
                 new_chunk->size = current->size - size - sizeof(chunk_header);
                 new_chunk->is_free = true;
                 new_chunk->next = current->next;
+                new_chunk->prev = current;  // Set the new chunk's previous pointer
+                if (current->next) {
+                    current->next->prev = new_chunk;
+                }
                 current->size = size;
                 current->next = new_chunk;
             }
@@ -75,28 +80,29 @@ void myfree(void *ptr, char *file, int line) {
     }
 
     chunk_header *chunk = (chunk_header*)((char*)ptr - sizeof(chunk_header));
-    chunk_header *current = base;
-
-    // Check if the pointer is at the start of a chunk
-    while (current != NULL && (void*)current != (void*)chunk) {
-        current = current->next;
-    }
-
-    if (!current || !chunk->is_free) {
-        fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
+    if (chunk->is_free) {
+        fprintf(stderr, "free: Double free detected (%s:%d)\n", file, line);
         exit(2);
     }
 
     chunk->is_free = true;
 
-    // Coalescing adjacent free blocks
-    current = base;
-    while (current != NULL && current->next != NULL) {
-        if (current->is_free && current->next->is_free) {
-            current->size += current->next->size + sizeof(chunk_header);
-            current->next = current->next->next;
+    // Coalescing with previous and next blocks
+    if (chunk->prev && chunk->prev->is_free) {
+        chunk->prev->size += chunk->size + sizeof(chunk_header);
+        chunk->prev->next = chunk->next;
+        if (chunk->next) {
+            chunk->next->prev = chunk->prev;
         }
-        current = current->next;
+        chunk = chunk->prev;
+    }
+
+    if (chunk->next && chunk->next->is_free) {
+        chunk->size += chunk->next->size + sizeof(chunk_header);
+        chunk->next = chunk->next->next;
+        if (chunk->next) {
+            chunk->next->prev = chunk;
+        }
     }
 }
 
