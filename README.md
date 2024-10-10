@@ -23,8 +23,8 @@ This course focuses on learning the fundamentals of systems programming, primari
 
 ## Projects
 
-### Project 1: [Name of Project]
-*Brief description of the project.*
+### Project 1: [mymalloc]
+*A lite version of C's memory allocation function*
 - Topics covered: [Topics such as file I/O, process management, etc.]
 - Key concepts: [e.g., multi-threading, IPC, etc.]
 
