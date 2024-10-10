@@ -1,13 +1,27 @@
 CC = gcc
 CFLAGS = -g -Wall
 
-all: memgrind
+# Specify the directory for clearer management
+DIR = Project#1
 
-mymalloc: mymalloc.c
-    $(CC) $(CFLAGS) -o mm mymalloc.c
+# Objects and executables
+LIB_OBJS = $(DIR)/mymalloc.o
+TEST_PROGRAMS = $(DIR)/memgrind $(DIR)/mymalloc_small_batch_tests
 
-memgrind: mymalloc.c memgrind.c
-    $(CC) $(CFLAGS) -c mymalloc.c
-    $(CC) $(CFLAGS) -o memgrind memgrind.c mymalloc.o
+all: $(TEST_PROGRAMS)
+
+# Compile the allocator library
+$(DIR)/mymalloc.o: $(DIR)/mymalloc.c $(DIR)/mymalloc.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile the memgrind test program
+$(DIR)/memgrind: $(DIR)/memgrind.c $(LIB_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Compile the allocator tests program
+$(DIR)/mymalloc_small_batch_tests: $(DIR)/mymalloc_small_batch_tests.c $(LIB_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Clean up compiled files
 clean:
-    rm -f mymalloc.o memgrind
+	rm -f $(TEST_PROGRAMS) $(LIB_OBJS)
