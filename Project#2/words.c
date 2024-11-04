@@ -10,6 +10,85 @@
 #define HASH_TABLE_SIZE 10007  // A prime number for better distribution
 
 /*
+ * Main function
+ * -------------
+ * Entry point for the word counting program. Handles both single file and directory
+ * processing by checking the file type and calling the appropriate function.
+ */
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s \n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        struct stat path_stat;
+        if (stat(argv[i], &path_stat) == -1) {
+            perror("stat");
+            continue;
+        }
+
+        if (S_ISDIR(path_stat.st_mode)) {
+            process_directory(argv[i]);
+        } else if (S_ISREG(path_stat.st_mode)) {
+            process_file(argv[i]);
+        } else {
+            fprintf(stderr, "%s is neither a regular file nor a directory\n", argv[i]);
+        }
+    }
+
+    // Output the results sorted by frequency and alphabetically
+    output_results();
+    return EXIT_SUCCESS;
+}
+
+/*
+ * Directory Processing Function
+ * -----------------------------
+ * Recursively processes a directory, analyzing each file within for word counts.
+ *
+ * Parameters:
+ *   directory - The path of the directory to process.
+ *
+ * Returns:
+ *   void
+ */
+void process_directory(const char *directory) {
+    DIR *dir = opendir(directory);
+    if (dir == NULL) {
+        perror("opendir");
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_name[0] == '.') {
+            continue;  // Skip hidden files and directories
+        }
+
+        char path[BUFFER_SIZE];
+        snprintf(path, sizeof(path), "%s/%s", directory, entry->d_name);
+
+        struct stat path_stat;
+        if (stat(path, &path_stat) == -1) {
+            perror("stat");
+            continue;
+        }
+
+        if (S_ISDIR(path_stat.st_mode)) {
+            process_directory(path);  // Recurse into subdirectory
+        } else if (S_ISREG(path_stat.st_mode) && strstr(entry->d_name, ".txt")) {
+            process_file(path);  // Process .txt file
+        }
+    }
+
+    closedir(dir);
+}
+
+
+
+
+/*
  * Structure: WordEntry
  * --------------------
  * Represents an entry in the hash table.
