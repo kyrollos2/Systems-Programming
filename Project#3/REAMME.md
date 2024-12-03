@@ -162,16 +162,8 @@ Run the following command for batch mode tests:
 ## Authors
 
 - **Neer Patel**  
-- **Kyro**
+- **Kyrollos Girgis**
 
 NetIDs:
-- **[Your NetID]**
-- **[Partner's NetID]**
-
----
-
-## Notes
-
-This project provides an excellent introduction to systems programming concepts such as process management, file I/O, and inter-process communication in Unix-like environments.  
-
-Feel free to report any issues or contribute enhancements!
+- **nyp22**
+- **kmg393**
